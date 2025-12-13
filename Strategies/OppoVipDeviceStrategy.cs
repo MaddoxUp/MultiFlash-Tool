@@ -219,7 +219,13 @@ namespace OPFlashTool.Strategies
             }
 
             log($"[GPT] 共读取到 {lunRead} 个 LUN，解析出 {allPartitions.Count} 个分区");
-            if (allPartitions.Count == 0) throw new Exception("VIP 模式读取分区表失败 (未获取到任何分区)");
+            
+            if (allPartitions.Count == 0)
+            {
+                log("[警告] VIP 模式无法读取分区表 (Firehose 拒绝所有读取请求)");
+                log("[提示] 您仍可使用 XML 刷写模式 (rawprogram*.xml) 进行刷机操作");
+                // 不再抛出异常，返回空列表允许用户使用 XML 模式
+            }
             
             return allPartitions;
         }

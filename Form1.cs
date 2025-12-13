@@ -2997,7 +2997,16 @@ namespace OPFlashTool
             }
             listView1.EndUpdate();
             UpdatePartitionListGridLines();
-            AppendLog($"读取分区表成功，共 {partitions.Count} 个分区", Color.Green);
+            
+            if (partitions.Count > 0)
+            {
+                AppendLog($"读取分区表成功，共 {partitions.Count} 个分区", Color.Green);
+            }
+            else
+            {
+                AppendLog("未能读取分区表 (Firehose 限制读取)", Color.Orange);
+                AppendLog("提示: 您可以使用 XML 刷写模式进行刷机", Color.Gray);
+            }
         }
 
         private void UpdatePartitionListGridLines()
