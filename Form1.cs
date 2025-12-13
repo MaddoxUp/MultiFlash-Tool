@@ -171,6 +171,20 @@ namespace OPFlashTool
                     await copyTask;
 
                     AppendLog("加载中...OK", Color.Green);
+
+                    // 启动时显示 Q 群邀请
+                    if (MessageBox.Show("欢迎使用 MultiFlash Tool！\n\n官方 QQ 交流群：MultiFlash TOOL\n是否立即加入群聊获取最新资讯和支持？", 
+                        "加入官方社区", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    {
+                        try
+                        {
+                            Process.Start(new ProcessStartInfo("https://qm.qq.com/q/oCwGmTm5a2") { UseShellExecute = true });
+                        }
+                        catch (Exception ex)
+                        {
+                            AppendLog($"无法打开 Q 群链接: {ex.Message}", Color.Red);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
