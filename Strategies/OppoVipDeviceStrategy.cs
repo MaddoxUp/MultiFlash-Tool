@@ -140,7 +140,7 @@ namespace OPFlashTool.Strategies
                             {
                                 log($"[GPT] 尝试读取 Backup GPT @ {startSector} (Total: {totalSectors})...");
                                 
-                                // 尝试 Backup GPT (先试 gpt_main0.bin，再试 ssd)
+                                // 尝试 Backup GPT (顺序: main -> backup -> ssd)
                                 try
                                 {
                                     data = await client.ReadGptPacketAsync(
@@ -153,6 +153,22 @@ namespace OPFlashTool.Strategies
                                     );
                                 }
                                 catch {}
+
+                                if (data == null)
+                                {
+                                    try 
+                                    {
+                                        data = await client.ReadGptPacketAsync(
+                                            lun.ToString(),
+                                            startSector,
+                                            sectorsToRead,
+                                            "BackupGPT", 
+                                            "gpt_backup0.bin", 
+                                            ct
+                                        );
+                                    }
+                                    catch {}
+                                }
 
                                 if (data == null)
                                 {
