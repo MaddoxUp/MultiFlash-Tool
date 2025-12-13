@@ -3607,25 +3607,23 @@ namespace OPFlashTool
         }
         private string? SelectDirectoryWithFileDialog(string title)
         {
-            using (var dialog = new OpenFileDialog())
+            // 优化：使用 FolderBrowserDialog 替代 OpenFileDialog
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
-                dialog.Title = title;
-                dialog.Filter = "All Files (*.*)|*.*";
-                dialog.FilterIndex = 1;
-                dialog.RestoreDirectory = true;
-                dialog.CheckFileExists = false;
-                dialog.CheckPathExists = true;
-                dialog.ValidateNames = false;
-                dialog.FileName = "请选择文件夹";
+                dialog.Description = title;
+                dialog.ShowNewFolderButton = true;
+                
+                // 设置默认路径为桌面或上次使用的路径
+                string defaultPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                if (!string.IsNullOrEmpty(currentFirmwareFolder) && Directory.Exists(currentFirmwareFolder))
+                {
+                    defaultPath = currentFirmwareFolder;
+                }
+                dialog.SelectedPath = defaultPath;
 
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    string path = Path.GetDirectoryName(dialog.FileName);
-                    if (string.IsNullOrEmpty(path))
-                    {
-                        path = dialog.FileName;
-                    }
-                    return path;
+                    return dialog.SelectedPath;
                 }
             }
 

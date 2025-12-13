@@ -210,13 +210,41 @@ namespace OPFlashTool.Services
                         {
                             string relativePath = part.Path.Replace("/", "\\");
                             string tempPath = Path.Combine(baseDir, relativePath);
-                            if (!File.Exists(tempPath) && relativePath.StartsWith("IMAGES\\", StringComparison.OrdinalIgnoreCase))
+                            
+                            // 优化：多路径搜索策略
+                            if (!File.Exists(tempPath))
                             {
-                                string altPath = Path.Combine(baseDir, relativePath.Substring(7));
-                                if (File.Exists(altPath))
+                                // 策略 1: 移除 IMAGES\ 前缀
+                                if (relativePath.StartsWith("IMAGES\\", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    tempPath = altPath;
-                                    _log($"[Info] 路径自动修正: {part.Path} -> {tempPath}");
+                                    string altPath = Path.Combine(baseDir, relativePath.Substring(7));
+                                    if (File.Exists(altPath))
+                                    {
+                                        tempPath = altPath;
+                                        _log($"[Info] 路径修正: {part.Path} -> {tempPath}");
+                                    }
+                                }
+                                
+                                // 策略 2: 在 IMAGES 子目录中搜索
+                                if (!File.Exists(tempPath))
+                                {
+                                    string imagesPath = Path.Combine(baseDir, "IMAGES", Path.GetFileName(relativePath));
+                                    if (File.Exists(imagesPath))
+                                    {
+                                        tempPath = imagesPath;
+                                        _log($"[Info] 路径修正: {part.Path} -> {tempPath}");
+                                    }
+                                }
+                                
+                                // 策略 3: 直接在根目录搜索文件名
+                                if (!File.Exists(tempPath))
+                                {
+                                    string rootPath = Path.Combine(baseDir, Path.GetFileName(relativePath));
+                                    if (File.Exists(rootPath))
+                                    {
+                                        tempPath = rootPath;
+                                        _log($"[Info] 路径修正: {part.Path} -> {tempPath}");
+                                    }
                                 }
                             }
 
